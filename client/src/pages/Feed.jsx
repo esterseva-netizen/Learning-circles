@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchFeed, createPost } from '../store/postsSlice';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import CommentSection from '../components/CommentSection';
 
 const Feed = () => {
   const dispatch = useDispatch();
@@ -217,17 +218,16 @@ const Feed = () => {
               </div>
 
               <p style={{ color: '#1E293B', fontSize: '15px', lineHeight: 1.7, margin: '0 0 1rem' }}>{post.content}</p>
-
-              <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
+                <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
                 <button className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
                   ❤️ {post.likesCount}
                 </button>
                 <button className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
-                  💬 {post.commentsCount}
-                </button>
-                <button className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
                   🔗 שתף
                 </button>
+              </div>
+              <div style={{ paddingTop: '8px' }}>
+                <CommentSection postId={post._id} initialCount={post.commentsCount} />
               </div>
             </div>
           ))}

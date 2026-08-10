@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import CommentSection from '../components/CommentSection';
 
 const CirclePage = () => {
   const { id } = useParams();
@@ -60,6 +61,12 @@ const CirclePage = () => {
     }
   };
 
+  const handleCommentCountChange = (postId, delta) => {
+    setPosts(posts.map(p =>
+      p._id === postId ? { ...p, commentsCount: p.commentsCount + delta } : p
+    ));
+  };
+
   if (loading) return <p style={{ textAlign: 'center', marginTop: '2rem' }}>טוען...</p>;
   if (error) return <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>;
 
@@ -115,8 +122,12 @@ const CirclePage = () => {
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e91e63' }}>
               ❤️ {post.likesCount}
             </button>
-            <span style={{ color: '#888', fontSize: '14px' }}>💬 {post.commentsCount}</span>
           </div>
+          <CommentSection
+            postId={post._id}
+            initialCount={post.commentsCount}
+            onCountChange={(delta) => handleCommentCountChange(post._id, delta)}
+          />
         </div>
       ))}
     </div>

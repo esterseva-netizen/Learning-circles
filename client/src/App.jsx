@@ -1,14 +1,20 @@
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { useAuth } from './context/AuthContext';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import Feed from './pages/Feed';
-import Circles from './pages/Circles';
-import Profile from './pages/Profile';
-import CreateCircle from './pages/CreateCircle';
-import CirclePage from './pages/CirclePage';
-import Chat from './pages/Chat';
-import About from './pages/About';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// (Lazy Loading) — כל עמוד נטען רק כשמנווטים אליו,
+//  מה שמקטין את חבילת ה-JS הראשונית ומשפר את זמן הטעינה הראשוני
+const Register = lazy(() => import('./pages/Register'));
+const Login = lazy(() => import('./pages/Login'));
+const Feed = lazy(() => import('./pages/Feed'));
+const Circles = lazy(() => import('./pages/Circles'));
+const Profile = lazy(() => import('./pages/Profile'));
+const CreateCircle = lazy(() => import('./pages/CreateCircle'));
+const CirclePage = lazy(() => import('./pages/CirclePage'));
+const Chat = lazy(() => import('./pages/Chat'));
+const About = lazy(() => import('./pages/About'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -110,18 +116,21 @@ const App = () => {
     <div style={{ fontFamily: 'Heebo, sans-serif', background: '#F7F9FC', minHeight: '100vh' }}>
       <Navbar />
       <div style={{ paddingTop: '64px' }}>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
-          <Route path="/circles" element={<ProtectedRoute><Circles /></ProtectedRoute>} />
-          <Route path="/circles/create" element={<ProtectedRoute><CreateCircle /></ProtectedRoute>} />
-          <Route path="/circles/:id" element={<ProtectedRoute><CirclePage /></ProtectedRoute>} />
-          <Route path="/circles/:id/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+        <Suspense fallback={<LoadingSpinner message="טוען עמוד..." />}>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+            <Route path="/circles" element={<ProtectedRoute><Circles /></ProtectedRoute>} />
+            <Route path="/circles/create" element={<ProtectedRoute><CreateCircle /></ProtectedRoute>} />
+            <Route path="/circles/:id" element={<ProtectedRoute><CirclePage /></ProtectedRoute>} />
+            <Route path="/circles/:id/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            {/* Catch-all — חייב להיות אחרון, מציג עמוד 404 אמיתי במקום להפנות הביתה */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   );
