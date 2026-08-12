@@ -27,6 +27,7 @@ const CircleCard = memo(function CircleCard({ circle, onOpen, onJoin, onOpenChat
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onOpenChat(circle._id); }}
+          aria-label={`פתח צ'אט של ${circle.name}`}
           style={{ padding: '8px 12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer' }}
         >
           💬
