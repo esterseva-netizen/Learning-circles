@@ -70,6 +70,8 @@ const CommentSection = ({ postId, initialCount = 0, onCountChange }) => {
     <div style={{ marginTop: '8px' }}>
       <button
         onClick={handleToggle}
+        aria-label={open ? 'הסתר תגובות' : 'הצג תגובות'}
+        aria-expanded={open}
         style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '14px', padding: 0 }}
       >
         💬 {initialCount} תגובות {open ? '▲' : '▼'}
@@ -106,6 +108,7 @@ const CommentSection = ({ postId, initialCount = 0, onCountChange }) => {
               value={content}
               onChange={(e) => { setContent(e.target.value); setError(''); }}
               placeholder="הוסף תגובה..."
+              aria-label="תוכן התגובה"
               style={{ flex: 1, padding: '6px 8px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
             />
             <button
