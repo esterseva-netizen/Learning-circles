@@ -51,7 +51,7 @@ const Chat = () => {
     if (!content.trim()) return;
     setSending(true);
     try {
-      const res = await api.post('/messages', { circle: id, content });
+      const res = await api.post(`/messages/${id}`, { content });
       setMessages([...messages, res.data.data]);
       setContent('');
     } catch (err) {
