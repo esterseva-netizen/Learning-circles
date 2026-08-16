@@ -1,10 +1,18 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+// יוצר את תיקיית uploads אם היא לא קיימת — חשוב כי היא לא נשמרת ב-Git,
+// אז בכל פעם שהשרת עולה מחדש בענן (Render) הוא חייב ליצור אותה בעצמו
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // הגדרת שמירה
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
