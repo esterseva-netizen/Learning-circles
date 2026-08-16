@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFeed, createPost } from '../store/postsSlice';
+import { fetchCircles, fetchMyCircles } from '../store/circlesSlice';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import CommentSection from '../components/CommentSection';
@@ -10,13 +11,17 @@ const Feed = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { feed, loading } = useSelector((state) => state.posts);
-  const { list: circles } = useSelector((state) => state.circles);
+  const { list: circles, myCircles } = useSelector((state) => state.circles);
+  const myCircleIds = new Set((myCircles || []).map(c => c._id));
+  const suggestedCircles = (circles || []).filter(c => !myCircleIds.has(c._id));
   const [content, setContent] = useState('');
   const [postType, setPostType] = useState('general');
   const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     dispatch(fetchFeed());
+    dispatch(fetchCircles());     // כל המעגלים הציבוריים — עבור "מעגלים מוצעים"
+    dispatch(fetchMyCircles());   // רק המעגלים שהמשתמש חבר בהם בפועל — עבור "המעגלים שלי"
   }, [dispatch]);
 
   const handleSubmit = async (e) => {
@@ -71,7 +76,7 @@ const Feed = () => {
             )}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #E2E8F0' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontWeight: '700', color: '#1E293B', fontSize: '18px' }}>{circles?.length || 0}</div>
+                <div style={{ fontWeight: '700', color: '#1E293B', fontSize: '18px' }}>{myCircles?.length || 0}</div>
                 <div style={{ color: '#64748B', fontSize: '12px' }}>מעגלים</div>
               </div>
               <div style={{ textAlign: 'center' }}>
@@ -88,7 +93,7 @@ const Feed = () => {
           <div style={{ background: 'white', borderRadius: '16px', padding: '1rem', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0' }}>
             {[
               { icon: '🏠', label: 'דף הבית', path: '/' },
-              { icon: '⭕', label: 'המעגלים שלי', path: '/circles' },
+              { icon: '⭕', label: 'כל המעגלים', path: '/circles' },
               { icon: '➕', label: 'מעגל חדש', path: '/circles/create' },
               { icon: '👤', label: 'פרופיל', path: '/profile' },
             ].map(item => (
@@ -104,6 +109,31 @@ const Feed = () => {
                 {item.label}
               </Link>
             ))}
+          </div>
+
+          {/* המעגלים שלי — רק מעגלים שהמשתמש הצטרף אליהם בפועל */}
+          <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0' }}>
+            <h3 style={{ margin: '0 0 1rem', color: '#1E293B', fontSize: '16px' }}>המעגלים שלי</h3>
+
+            {myCircles?.length === 0 ? (
+              <p style={{ color: '#64748B', fontSize: '13px', margin: 0 }}>
+                עדיין לא הצטרפת לאף מעגל. לחצי על "כל המעגלים" כדי לגלות ולהצטרף!
+              </p>
+            ) : (
+              myCircles?.map(circle => (
+                <Link key={circle._id} to={`/circles/${circle._id}`} className="circle-item" style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '10px', borderRadius: '10px', textDecoration: 'none',
+                  marginBottom: '6px', transition: 'background 0.2s'
+                }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #38D9A9, #12B886)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>⭕</div>
+                  <div>
+                    <div style={{ fontWeight: '600', color: '#1E293B', fontSize: '13px' }}>{circle.name}</div>
+                    <div style={{ color: '#64748B', fontSize: '11px' }}>👥 {circle.membersCount} חברים</div>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </div>
 
@@ -218,7 +248,8 @@ const Feed = () => {
               </div>
 
               <p style={{ color: '#1E293B', fontSize: '15px', lineHeight: 1.7, margin: '0 0 1rem' }}>{post.content}</p>
-                <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
+
+              <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
                 <button className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
                   ❤️ {post.likesCount}
                 </button>
@@ -233,29 +264,29 @@ const Feed = () => {
           ))}
         </div>
 
-        {/* Sidebar Left — מעגלים מומלצים */}
+        {/* Sidebar Left — מעגלים מוצעים */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0, color: '#1E293B', fontSize: '16px' }}>המעגלים שלי</h3>
+              <h3 style={{ margin: 0, color: '#1E293B', fontSize: '16px' }}>מעגלים מוצעים</h3>
               <Link to="/circles" style={{ color: '#5B5FEF', fontSize: '13px', textDecoration: 'none', fontWeight: '600' }}>הצג הכל</Link>
             </div>
 
-            {circles?.length === 0 ? (
+            {suggestedCircles.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '1rem' }}>
-                <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '1rem' }}>עדיין לא הצטרפת למעגלים</p>
-                <Link to="/circles" style={{
+                <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '1rem' }}>אין כרגע מעגלים נוספים להצטרפות</p>
+                <Link to="/circles/create" style={{
                   display: 'block', padding: '8px', background: '#F8FAFF',
                   color: '#5B5FEF', borderRadius: '8px', fontSize: '13px',
                   fontWeight: '600', textDecoration: 'none', border: '1px solid #E2E8F0'
                 }}>
-                  גלה מעגלים ⭕
+                  צור מעגל ⭕
                 </Link>
               </div>
             ) : (
-              circles?.slice(0, 5).map(circle => (
-                <Link key={circle._id} to={`/circles/${circle._id}`} className="circle-item" style={{
+              suggestedCircles.slice(0, 5).map(circle => (
+                <Link key={circle._id} to="/circles" className="circle-item" style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '10px', borderRadius: '10px', textDecoration: 'none',
                   marginBottom: '6px', transition: 'background 0.2s'

@@ -7,6 +7,7 @@ const postSchema = new mongoose.Schema({
     maxlength: 1000
   },
   mediaUrl: { type: String, default: '' },
+  mediaName: { type: String, default: '' },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

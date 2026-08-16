@@ -6,7 +6,7 @@ const Membership = require('../models/Membership');
 // יצירת פוסט חדש
 exports.createPost = async (req, res, next) => {
   try {
-    const { content, mediaUrl, circle, postType } = req.body;
+    const { content, circle, postType } = req.body;
 
     const membership = await Membership.findOne({
       user: req.user._id,
@@ -21,9 +21,14 @@ exports.createPost = async (req, res, next) => {
       });
     }
 
+    // אם הועלה קובץ (PDF/Word) — שומר את הנתיב ואת השם המקורי
+    const mediaUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const mediaName = req.file ? req.file.originalname : '';
+
     const post = await Post.create({
       content,
       mediaUrl,
+      mediaName,
       circle,
       postType,
       author: req.user._id
