@@ -6,6 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import CommentSection from '../components/CommentSection';
 
+// כתובת הבסיס של השרת (בלי /api בסוף) — להצגת תמונת הפרופיל שהועלתה
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
 const Feed = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -64,8 +67,12 @@ const Feed = () => {
           
           {/* כרטיס פרופיל */}
           <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0', textAlign: 'center' }}>
-            <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg, #5B5FEF, #7C4DFF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '28px', fontWeight: '700', margin: '0 auto 1rem' }}>
-              {user?.name?.charAt(0).toUpperCase()}
+            <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg, #5B5FEF, #7C4DFF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '28px', fontWeight: '700', margin: '0 auto 1rem', overflow: 'hidden' }}>
+              {user?.avatar ? (
+                <img src={`${API_BASE}${user.avatar}`} alt="תמונת פרופיל" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user?.name?.charAt(0).toUpperCase()
+              )}
             </div>
             <h3 style={{ margin: '0 0 4px', color: '#1E293B', fontSize: '16px' }}>{user?.name}</h3>
             <p style={{ margin: '0 0 8px', color: '#64748B', fontSize: '13px' }}>{user?.institution || 'לא צוין מוסד'}</p>

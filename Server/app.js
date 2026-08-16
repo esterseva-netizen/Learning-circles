@@ -12,7 +12,11 @@ const messageRoutes = require('./routes/messageRoutes'); // ← חדש
 
 const app = express();
 
-app.use(helmet());
+// crossOriginResourcePolicy: מאפשר לתמונות ולקבצים מ-/uploads להיטען
+// מהאתר (frontend) גם כשהוא רץ על כתובת/פורט אחר מהשרת עצמו
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 app.use(cors({ 
   origin: process.env.CLIENT_URL, 
   credentials: true 
