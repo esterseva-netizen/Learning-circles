@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchFeed, createPost } from '../store/postsSlice';
+import { fetchFeed, createPost, toggleLike } from '../store/postsSlice';
 import { fetchCircles, fetchMyCircles } from '../store/circlesSlice';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -18,6 +18,7 @@ const Feed = () => {
   const myCircleIds = new Set((myCircles || []).map(c => c._id));
   const suggestedCircles = (circles || []).filter(c => !myCircleIds.has(c._id));
   const [content, setContent] = useState('');
+  const [copiedId, setCopiedId] = useState(null);
   const [postType, setPostType] = useState('general');
   const [posting, setPosting] = useState(false);
 
@@ -26,6 +27,22 @@ const Feed = () => {
     dispatch(fetchCircles());     // כל המעגלים הציבוריים — עבור "מעגלים מוצעים"
     dispatch(fetchMyCircles());   // רק המעגלים שהמשתמש חבר בהם בפועל — עבור "המעגלים שלי"
   }, [dispatch]);
+
+  const handleLike = (postId) => {
+    dispatch(toggleLike({ postId, userId: user._id }));
+  };
+
+  const handleShare = async (post) => {
+    const circleId = post.circle?._id || post.circle;
+    const link = `${window.location.origin}/circles/${circleId}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiedId(post._id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -257,11 +274,11 @@ const Feed = () => {
               <p style={{ color: '#1E293B', fontSize: '15px', lineHeight: 1.7, margin: '0 0 1rem' }}>{post.content}</p>
 
               <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
-                <button className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
+                <button onClick={() => handleLike(post._id)} className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: post.likes?.includes(user?._id) ? '#e91e63' : '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
                   ❤️ {post.likesCount}
                 </button>
-                <button className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
-                  🔗 שתף
+                <button onClick={() => handleShare(post)} className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
+                  {copiedId === post._id ? '✅ הקישור הועתק' : '🔗 שתף'}
                 </button>
               </div>
               <div style={{ paddingTop: '8px' }}>
