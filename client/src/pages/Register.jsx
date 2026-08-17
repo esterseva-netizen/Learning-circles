@@ -15,7 +15,11 @@ const Register = () => {
     const newErrors = {};
     if (!formData.name) newErrors.name = 'שם הוא שדה חובה';
     if (!formData.email) newErrors.email = 'אימייל הוא שדה חובה';
-    if (!formData.password || formData.password.length < 8) newErrors.password = 'סיסמה חייבת להיות לפחות 8 תווים';
+    if (!formData.password || formData.password.length < 8) {
+      newErrors.password = 'סיסמה חייבת להיות לפחות 8 תווים';
+    } else if (!/^(?=.*[a-zA-Z])(?=.*\d)/.test(formData.password)) {
+      newErrors.password = 'הסיסמה חייבת לכלול גם אותיות וגם מספרים באנגלית';
+    }
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'הסיסמאות לא תואמות';
     return newErrors;
   };
@@ -167,6 +171,11 @@ const Register = () => {
                       }} />
                   </div>
                   {errors[field.name] && <p style={{ color: '#ef4444', fontSize: '12px', margin: '4px 0 0' }}>{errors[field.name]}</p>}
+                  {field.name === 'password' && !errors.password && (
+                    <p style={{ color: '#94A3B8', fontSize: '12px', margin: '4px 0 0' }}>
+                      לפחות 8 תווים, כולל גם אותיות וגם מספרים באנגלית
+                    </p>
+                  )}
                 </div>
               ))}
 
