@@ -8,6 +8,14 @@ exports.createComment = async (req, res, next) => {
     const { content } = req.body;
     const postId = req.params.postId;
 
+    // חייב להיות תוכן טקסט או קובץ מצורף (לפחות אחד מהם)
+    if (!content && !req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'יש להזין תוכן או לצרף קובץ'
+      });
+    }
+
     // בדיקה שהפוסט קיים
     const post = await Post.findById(postId);
     if (!post) {
@@ -31,8 +39,14 @@ exports.createComment = async (req, res, next) => {
       });
     }
 
+    // אם הועלה קובץ (PDF/Word) — שומר את הנתיב ואת השם המקורי
+    const mediaUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const mediaName = req.file ? req.file.originalname : '';
+
     const comment = await Comment.create({
-      content,
+      content: content || '',
+      mediaUrl,
+      mediaName,
       author: req.user._id,
       post: postId
     });

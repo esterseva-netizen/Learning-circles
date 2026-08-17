@@ -7,17 +7,16 @@ const {
   deleteComment
 } = require('../controllers/commentController');
 const { protect } = require('../middleware/authMiddleware');
-const validate = require('../middleware/validate');
-const { createCommentSchema, updateCommentSchema } = require('../validation/commentValidation');
+const { uploadDocument } = require('../middleware/upload');
 
 // קבלת כל התגובות של פוסט
 router.get('/:postId', protect, getPostComments);
 
-// יצירת תגובה חדשה
-router.post('/:postId', protect, validate(createCommentSchema), createComment);
+// יצירת תגובה חדשה — כולל אפשרות לצרף קובץ PDF/Word
+router.post('/:postId', protect, uploadDocument.single('document'), createComment);
 
 // עדכון תגובה
-router.put('/:id', protect, validate(updateCommentSchema), updateComment);
+router.put('/:id', protect, updateComment);
 
 // מחיקת תגובה
 router.delete('/:id', protect, deleteComment);

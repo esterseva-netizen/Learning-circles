@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const commentSchema = new mongoose.Schema({
   content: {
     type: String,
-    required: [true, 'תוכן התגובה הוא חובה'],
+    default: '',
     maxlength: 500
   },
+  mediaUrl: { type: String, default: '' },
+  mediaName: { type: String, default: '' },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
