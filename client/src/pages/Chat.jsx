@@ -37,7 +37,7 @@ const Chat = () => {
       } catch (err) {
         console.error(err);
       }
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [id]);

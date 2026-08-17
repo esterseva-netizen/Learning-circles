@@ -27,7 +27,7 @@ app.use('/uploads', express.static('uploads'));
 // Rate Limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 500,
   message: { 
     success: false, 
     message: 'יותר מדי בקשות, נסה שוב בעוד 15 דקות' 
@@ -36,7 +36,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 20,
   message: { 
     success: false, 
     message: 'יותר מדי ניסיונות התחברות, נסה שוב בעוד 15 דקות' 
