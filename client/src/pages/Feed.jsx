@@ -18,7 +18,6 @@ const Feed = () => {
   const myCircleIds = new Set((myCircles || []).map(c => c._id));
   const suggestedCircles = (circles || []).filter(c => !myCircleIds.has(c._id));
   const [content, setContent] = useState('');
-  const [copiedId, setCopiedId] = useState(null);
   const [postType, setPostType] = useState('general');
   const [posting, setPosting] = useState(false);
 
@@ -30,18 +29,6 @@ const Feed = () => {
 
   const handleLike = (postId) => {
     dispatch(toggleLike({ postId, userId: user._id }));
-  };
-
-  const handleShare = async (post) => {
-    const circleId = post.circle?._id || post.circle;
-    const link = `${window.location.origin}/circles/${circleId}`;
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopiedId(post._id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -276,9 +263,6 @@ const Feed = () => {
               <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #F1F5F9' }}>
                 <button onClick={() => handleLike(post._id)} className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: post.likes?.includes(user?._id) ? '#e91e63' : '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
                   ❤️ {post.likesCount}
-                </button>
-                <button onClick={() => handleShare(post)} className="action-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#64748B', fontSize: '14px', fontFamily: 'Heebo, sans-serif' }}>
-                  {copiedId === post._id ? '✅ הקישור הועתק' : '🔗 שתף'}
                 </button>
               </div>
               <div style={{ paddingTop: '8px' }}>
